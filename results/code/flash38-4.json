@@ -1,0 +1,40 @@
+{
+ "test": "code",
+ "model_key": "flash38",
+ "model": "gemini-3.8-flash",
+ "run": 4,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:24:35Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdJOHoxYXBTV0RMRDVqTkFQdTgyRThBaxIXSTh6MWFwU1dETEQ1ak5BUHU4MkU4QWs",
+ "seconds": 232.3,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:28:28Z",
+ "server_updated": "2026-11-12T14:28:28Z",
+ "tokens_in": 418,
+ "thought_tokens": 29125,
+ "tokens_out_incl_thinking": 30368,
+ "cost_usd": 0.114193,
+ "usage": {
+  "total_tokens": 30786,
+  "total_input_tokens": 418,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 418
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1243,
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 29125,
+  "initial_input_tokens": 418
+ },
+ "text": "```python\nimport math\n\n\ndef evaluate(expr: str) -> int:\n    if not isinstance(expr, str) or not expr.strip():\n        raise ValueError(\"Empty expression\")\n\n    # 1. Tokenize into raw tokens\n    raw_tokens = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        c = expr[i]\n        if c.isspace():\n            i += 1\n            continue\n        if c.isdigit():\n            j = i\n            while j < n and expr[j].isdigit():\n                j += 1\n            raw_tokens.append((\"NUM\", int(expr[i:j])))\n            i = j\n        elif c in \"+-*/%^!()\":\n            raw_tokens.append((c, c))\n            i += 1\n        else:\n            raise ValueError(f\"Invalid character: {c}\")\n\n    if not raw_tokens:\n        raise ValueError(\"Empty expression\")\n\n    # 2. Validate token adjacencies and insert implicit multiplication\n    tokens = []\n    for t in raw_tokens:\n        if tokens:\n            prev = tokens[-1]\n            # A number following a number, closing parenthesis, or '!' is malformed\n            if t[0] == \"NUM\" and prev[0] in (\"NUM\", \")\", \"!\"):\n                raise ValueError(f\"Malformed expression: number following {prev[0]}\")\n            # An opening parenthesis following a number, closing parenthesis, or '!' implies multiplication\n            if t[0] == \"(\" and prev[0] in (\"NUM\", \")\", \"!\"):\n                tokens.append((\"*\", \"*\"))\n        tokens.append(t)\n\n    # 3. Arithmetic helper functions\n    def trunc_div(a: int, b: int) -> int:\n        if b == 0:\n            raise ValueError(\"Division by zero\")\n        q = abs(a) // abs(b)\n        return -q if (a < 0) ^ (b < 0) else q\n\n    def trunc_mod(a: int, b: int) -> int:\n        if b == 0:\n            raise ValueError(\"Remainder by zero\")\n        q = trunc_div(a, b)\n        return a - q * b\n\n    def calc_pow(base: int, exp: int) -> int:\n        if exp < 0:\n            raise ValueError(\"Negative exponent\")\n        return base**exp\n\n    def calc_fact(val: int) -> int:\n        if val < 0:\n            raise ValueError(\"Factorial of negative number\")\n        return math.factorial(val)\n\n    # 4. Recursive descent parser\n    pos = 0\n\n    def peek():\n        if pos < len(tokens):\n            return tokens[pos][0]\n        return None\n\n    def consume(expected=None):\n        nonlocal pos\n        if pos >= len(tokens):\n            raise ValueError(\"Unexpected end of expression\")\n        tok = tokens[pos]\n        if expected is not None and tok[0] != expected:\n            raise ValueError(f\"Expected {expected}, got {tok[0]}\")\n        pos += 1\n        return tok\n\n    def parse_expr():\n        # Precedence 1: binary + and - (left-associative)\n        node = parse_term()\n        while peek() in (\"+\", \"-\"):\n            op = consume()[0]\n            right = parse_term()\n            if op == \"+\":\n                node = node + right\n            else:\n                node = node - right\n        return node\n\n    def parse_term():\n        # Precedence 2: binary *, /, % (left-associative)\n        node = parse_unary()\n        while peek() in (\"*\", \"/\", \"%\"):\n            op = consume()[0]\n            right = parse_unary()\n            if op == \"*\":\n                node = node * right\n            elif op == \"/\":\n                node = trunc_div(node, right)\n            elif op == \"%\":\n                node = trunc_mod(node, right)\n        return node\n\n    def parse_unary():\n        # Precedence 3: unary minus (may be repeated)\n        if peek() == \"-\":\n            consume(\"-\")\n            return -parse_unary()\n        return parse_power()\n\n    def parse_power():\n        # Precedence 4: power ^ (right-associative, binds tighter than unary minus)\n        base = parse_postfix()\n        if peek() == \"^\":\n            consume(\"^\")\n            exp = parse_unary()\n            return calc_pow(base, exp)\n        return base\n\n    def parse_postfix():\n        # Precedence 5: postfix factorial ! (binds tightest)\n        node = parse_primary()\n        while peek() == \"!\":\n            consume(\"!\")\n            node = calc_fact(node)\n        return node\n\n    def parse_primary():\n        tok = peek()\n        if tok == \"NUM\":\n            return consume(\"NUM\")[1]\n        elif tok == \"(\":\n            consume(\"(\")\n            val = parse_expr()\n            consume(\")\")\n            return val\n        elif tok is None:\n            raise ValueError(\"Unexpected end of expression\")\n        else:\n            raise ValueError(f\"Unexpected token: {tok}\")\n\n    result = parse_expr()\n    if pos < len(tokens):\n        raise ValueError(f\"Unexpected token: {tokens[pos][0]}\")\n\n    return result\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

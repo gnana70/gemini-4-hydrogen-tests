@@ -1,0 +1,22 @@
+{
+ "test": "speed",
+ "model_key": "argon",
+ "model": "gemini-4-argon",
+ "run": 4,
+ "level": "low",
+ "started_utc": "2026-11-12T14:27:14Z",
+ "ttft_s": 6.364,
+ "total_s": 19.431,
+ "gen_s": 13.066,
+ "output_tokens": 825,
+ "thought_tokens": 0,
+ "tokens_in": 76,
+ "chunks": 33,
+ "words": 717,
+ "tps": 63.1,
+ "tps_end_to_end": 42.5,
+ "cost_usd": 0.008402,
+ "ok": true,
+ "score": 1.0,
+ "note": "tps = answer tokens / (last chunk - first answer chunk), measured from this machine; few chunks make it less exact"
+}

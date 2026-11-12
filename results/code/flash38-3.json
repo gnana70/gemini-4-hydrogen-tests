@@ -1,0 +1,40 @@
+{
+ "test": "code",
+ "model_key": "flash38",
+ "model": "gemini-3.8-flash",
+ "run": 3,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:24:31Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdIc3oxYXBIcExjeVlqdU1QNk9id2tRcxIXSHN6MWFwSHBMY3lZanVNUDZPYndrUXM",
+ "seconds": 282.8,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:29:14Z",
+ "server_updated": "2026-11-12T14:29:14Z",
+ "tokens_in": 418,
+ "thought_tokens": 38178,
+ "tokens_out_incl_thinking": 39352,
+ "cost_usd": 0.147883,
+ "usage": {
+  "total_tokens": 39770,
+  "total_input_tokens": 418,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 418
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1174,
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 38178,
+  "initial_input_tokens": 418
+ },
+ "text": "```python\nimport math\n\n\ndef evaluate(expr: str) -> int:\n    # 1. Tokenize input string\n    raw_tokens = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        c = expr[i]\n        if c.isspace():\n            i += 1\n            continue\n        if c.isdigit():\n            start = i\n            while i < n and expr[i].isdigit():\n                i += 1\n            raw_tokens.append(('NUM', int(expr[start:i])))\n        elif c in '+-*/%^!()':\n            raw_tokens.append((c, c))\n            i += 1\n        else:\n            raise ValueError(f\"Invalid character: {c}\")\n\n    # 2. Validate token adjacency and insert implicit multiplication\n    tokens = []\n    for tok in raw_tokens:\n        if tokens:\n            prev = tokens[-1]\n            if prev[0] == 'NUM' and tok[0] == 'NUM':\n                raise ValueError(\"Malformed expression: adjacent numbers separated by whitespace\")\n            if prev[0] == ')' and tok[0] == 'NUM':\n                raise ValueError(\"Malformed expression: number directly after closing parenthesis\")\n            if prev[0] in ('NUM', ')', '!') and tok[0] == '(':\n                tokens.append(('*', '*'))\n        tokens.append(tok)\n\n    if not tokens:\n        raise ValueError(\"Empty expression\")\n\n    # 3. Arithmetic helper functions\n    def trunc_div(a: int, b: int) -> int:\n        if b == 0:\n            raise ValueError(\"Division by zero\")\n        res = abs(a) // abs(b)\n        return -res if (a < 0) ^ (b < 0) else res\n\n    def trunc_mod(a: int, b: int) -> int:\n        if b == 0:\n            raise ValueError(\"Remainder by zero\")\n        rem = abs(a) % abs(b)\n        return -rem if a < 0 else rem\n\n    def power(base: int, exp: int) -> int:\n        if exp < 0:\n            raise ValueError(\"Negative exponent\")\n        return base ** exp\n\n    def factorial(n: int) -> int:\n        if n < 0:\n            raise ValueError(\"Factorial of negative number\")\n        return math.factorial(n)\n\n    # 4. Recursive descent parser\n    pos = 0\n\n    def peek():\n        if pos < len(tokens):\n            return tokens[pos]\n        return ('EOF', '')\n\n    def consume(expected=None):\n        nonlocal pos\n        tok = peek()\n        if expected is not None and tok[0] != expected:\n            raise ValueError(f\"Expected {expected}, got {tok[0]}\")\n        if tok[0] == 'EOF':\n            raise ValueError(\"Unexpected end of expression\")\n        pos += 1\n        return tok\n\n    def parse_expr() -> int:\n        val = parse_term()\n        while peek()[0] in ('+', '-'):\n            op = consume()[0]\n            right = parse_term()\n            if op == '+':\n                val = val + right\n            else:\n                val = val - right\n        return val\n\n    def parse_term() -> int:\n        val = parse_unary()\n        while peek()[0] in ('*', '/', '%'):\n            op = consume()[0]\n            right = parse_unary()\n            if op == '*':\n                val = val * right\n            elif op == '/':\n                val = trunc_div(val, right)\n            elif op == '%':\n                val = trunc_mod(val, right)\n        return val\n\n    def parse_unary() -> int:\n        neg_count = 0\n        while peek()[0] == '-':\n            consume('-')\n            neg_count += 1\n        val = parse_power()\n        return -val if neg_count % 2 == 1 else val\n\n    def parse_power() -> int:\n        val = parse_postfix()\n        if peek()[0] == '^':\n            consume('^')\n            exp = parse_unary()\n            val = power(val, exp)\n        return val\n\n    def parse_postfix() -> int:\n        val = parse_primary()\n        while peek()[0] == '!':\n            consume('!')\n            val = factorial(val)\n        return val\n\n    def parse_primary() -> int:\n        tok = peek()\n        if tok[0] == 'NUM':\n            consume('NUM')\n            return tok[1]\n        elif tok[0] == '(':\n            consume('(')\n            val = parse_expr()\n            if peek()[0] != ')':\n                raise ValueError(\"Expected ')'\")\n            consume(')')\n            return val\n        else:\n            raise ValueError(f\"Unexpected token: {tok[0]}\")\n\n    result = parse_expr()\n    if peek()[0] != 'EOF':\n        raise ValueError(f\"Unexpected trailing token: {peek()[0]}\")\n    return result\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

@@ -1,0 +1,45 @@
+{
+ "test": "code",
+ "model_key": "argon",
+ "model": "gemini-4-argon",
+ "run": 4,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:25:12Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdTTXoxYXNPQkEtZXk2OTRQcHJ5cnlBYxIXU016MWFzT0JBLWV5Njk0UHByeXJ5QWM",
+ "seconds": 181.4,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:28:14Z",
+ "server_updated": "2026-11-12T14:28:14Z",
+ "tokens_in": 439,
+ "thought_tokens": 12917,
+ "tokens_out_incl_thinking": 14159,
+ "cost_usd": 0.142468,
+ "usage": {
+  "total_tokens": 14598,
+  "total_input_tokens": 439,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 439
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1242,
+  "output_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 1242
+   }
+  ],
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 12917
+ },
+ "text": "```python\nimport math\n\n\ndef _apply_op(op: str, values: list[int]) -> None:\n    if op == \"u-\":\n        if not values:\n            raise ValueError(\"Missing operand for unary minus\")\n        values[-1] = -values[-1]\n        return\n\n    if len(values) < 2:\n        raise ValueError(f\"Missing operand for operator {op!r}\")\n\n    b = values.pop()\n    a = values.pop()\n\n    if op == \"+\":\n        values.append(a + b)\n    elif op == \"-\":\n        values.append(a - b)\n    elif op == \"*\":\n        values.append(a * b)\n    elif op == \"/\":\n        if b == 0:\n            raise ValueError(\"Division by zero\")\n        q = abs(a) // abs(b)\n        values.append(-q if (a < 0) ^ (b < 0) else q)\n    elif op == \"%\":\n        if b == 0:\n            raise ValueError(\"Remainder by zero\")\n        r = abs(a) % abs(b)\n        values.append(-r if a < 0 else r)\n    elif op == \"^\":\n        if b < 0:\n            raise ValueError(\"Negative exponent\")\n        values.append(a**b)\n    else:\n        raise ValueError(f\"Unknown operator {op!r}\")\n\n\ndef _parse_int(tok: str) -> int:\n    if len(tok) <= 4000:\n        return int(tok)\n    val = 0\n    for k in range(0, len(tok), 4000):\n        chunk = tok[k : k + 4000]\n        val = val * (10 ** len(chunk)) + int(chunk)\n    return val\n\n\ndef evaluate(expr: str) -> int:\n    if not isinstance(expr, str):\n        raise ValueError(\"Expression must be a string\")\n\n    tokens: list[str] = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        ch = expr[i]\n        if ch.isspace():\n            i += 1\n        elif \"0\" <= ch <= \"9\":\n            j = i + 1\n            while j < n and \"0\" <= expr[j] <= \"9\":\n                j += 1\n            tokens.append(expr[i:j])\n            i = j\n        elif ch in \"+-*/%^!()\":\n            tokens.append(ch)\n            i += 1\n        else:\n            raise ValueError(f\"Invalid character: {ch!r}\")\n\n    if not tokens:\n        raise ValueError(\"Empty expression\")\n\n    prec = {\n        \"+\": 1,\n        \"-\": 1,\n        \"*\": 2,\n        \"/\": 2,\n        \"%\": 2,\n        \"u-\": 3,\n        \"^\": 4,\n    }\n\n    values: list[int] = []\n    ops: list[str] = []\n    expect_operand = True\n\n    for tok in tokens:\n        if expect_operand:\n            if \"0\" <= tok[0] <= \"9\":\n                values.append(_parse_int(tok))\n                expect_operand = False\n            elif tok == \"(\":\n                ops.append(\"(\")\n            elif tok == \"-\":\n                ops.append(\"u-\")\n            else:\n                raise ValueError(f\"Unexpected token {tok!r}\")\n        else:\n            if tok == \"!\":\n                if not values:\n                    raise ValueError(\"Missing operand for factorial\")\n                v = values.pop()\n                if v < 0:\n                    raise ValueError(\"Factorial of negative number\")\n                values.append(math.factorial(v))\n            elif tok == \")\":\n                while ops and ops[-1] != \"(\":\n                    _apply_op(ops.pop(), values)\n                if not ops or ops[-1] != \"(\":\n                    raise ValueError(\"Mismatched parentheses\")\n                ops.pop()\n            elif tok == \"(\":\n                # Implicit multiplication after a number, ')' or '!'\n                while ops and ops[-1] != \"(\" and prec[ops[-1]] >= prec[\"*\"]:\n                    _apply_op(ops.pop(), values)\n                ops.append(\"*\")\n                ops.append(\"(\")\n                expect_operand = True\n            elif tok in (\"+\", \"-\", \"*\", \"/\", \"%\", \"^\"):\n                if tok == \"^\":\n                    while ops and ops[-1] != \"(\" and prec[ops[-1]] > prec[tok]:\n                        _apply_op(ops.pop(), values)\n                else:\n                    while ops and ops[-1] != \"(\" and prec[ops[-1]] >= prec[tok]:\n                        _apply_op(ops.pop(), values)\n                ops.append(tok)\n                expect_operand = True\n            else:\n                raise ValueError(f\"Unexpected token {tok!r}\")\n\n    if expect_operand:\n        raise ValueError(\"Incomplete expression\")\n\n    while ops:\n        op = ops.pop()\n        if op == \"(\":\n            raise ValueError(\"Mismatched parentheses\")\n        _apply_op(op, values)\n\n    if len(values) != 1:\n        raise ValueError(\"Malformed expression\")\n\n    return values[0]\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

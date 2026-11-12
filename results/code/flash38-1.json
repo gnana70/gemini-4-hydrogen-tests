@@ -1,0 +1,40 @@
+{
+ "test": "code",
+ "model_key": "flash38",
+ "model": "gemini-3.8-flash",
+ "run": 1,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:24:24Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdHTXoxYXVQbEFxbWl6N3NQODVEam1RTRIXR016MWF1UGxBcW1pejdzUDg1RGptUU0",
+ "seconds": 263.6,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:28:48Z",
+ "server_updated": "2026-11-12T14:28:48Z",
+ "tokens_in": 418,
+ "thought_tokens": 38366,
+ "tokens_out_incl_thinking": 40055,
+ "cost_usd": 0.15052,
+ "usage": {
+  "total_tokens": 40473,
+  "total_input_tokens": 418,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 418
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1689,
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 38366,
+  "initial_input_tokens": 418
+ },
+ "text": "```python\nimport math\nimport sys\n\nif hasattr(sys, 'set_int_max_str_digits'):\n    try:\n        sys.set_int_max_str_digits(0)\n    except Exception:\n        pass\n\n\ndef _trunc_div(a: int, b: int) -> int:\n    if b == 0:\n        raise ValueError(\"Division by zero\")\n    sign = -1 if (a < 0) ^ (b < 0) else 1\n    return sign * (abs(a) // abs(b))\n\n\ndef _trunc_mod(a: int, b: int) -> int:\n    if b == 0:\n        raise ValueError(\"Modulo by zero\")\n    q = _trunc_div(a, b)\n    return a - b * q\n\n\ndef evaluate(expr: str) -> int:\n    if not isinstance(expr, str):\n        raise ValueError(\"Expression must be a string\")\n\n    # 1. Lexing\n    i = 0\n    n = len(expr)\n    raw_tokens = []\n    while i < n:\n        c = expr[i]\n        if c in ' \\t\\n\\r':\n            i += 1\n            continue\n        if c.isdigit():\n            start = i\n            while i < n and expr[i].isdigit():\n                i += 1\n            raw_tokens.append(('NUM', int(expr[start:i])))\n            continue\n        if c == '+':\n            raw_tokens.append(('PLUS', '+'))\n        elif c == '-':\n            raw_tokens.append(('MINUS', '-'))\n        elif c == '*':\n            raw_tokens.append(('STAR', '*'))\n        elif c == '/':\n            raw_tokens.append(('SLASH', '/'))\n        elif c == '%':\n            raw_tokens.append(('PERCENT', '%'))\n        elif c == '^':\n            raw_tokens.append(('CARET', '^'))\n        elif c == '!':\n            raw_tokens.append(('BANG', '!'))\n        elif c == '(':\n            raw_tokens.append(('LPAREN', '('))\n        elif c == ')':\n            raw_tokens.append(('RPAREN', ')'))\n        else:\n            raise ValueError(f\"Invalid character: {c!r}\")\n        i += 1\n\n    if not raw_tokens:\n        raise ValueError(\"Empty expression\")\n\n    # 2. Token validation, distinguishing unary minus, and inserting implicit multiplication\n    tokens = []\n    want_operand = True\n    paren_depth = 0\n\n    for tok_type, tok_val in raw_tokens:\n        if want_operand:\n            if tok_type == 'NUM':\n                tokens.append(('NUM', tok_val))\n                want_operand = False\n            elif tok_type == 'LPAREN':\n                tokens.append(('LPAREN', '('))\n                paren_depth += 1\n                want_operand = True\n            elif tok_type == 'MINUS':\n                tokens.append(('UNARY_MINUS', '-'))\n                want_operand = True\n            else:\n                raise ValueError(f\"Unexpected token {tok_val!r} when expecting operand\")\n        else:\n            if tok_type in ('PLUS', 'STAR', 'SLASH', 'PERCENT', 'CARET'):\n                tokens.append((tok_type, tok_val))\n                want_operand = True\n            elif tok_type == 'MINUS':\n                tokens.append(('MINUS', '-'))\n                want_operand = True\n            elif tok_type == 'BANG':\n                tokens.append(('BANG', '!'))\n                want_operand = False\n            elif tok_type == 'RPAREN':\n                if paren_depth == 0:\n                    raise ValueError(\"Unmatched closing parenthesis\")\n                paren_depth -= 1\n                tokens.append(('RPAREN', ')'))\n                want_operand = False\n            elif tok_type == 'LPAREN':\n                # Implicit multiplication\n                tokens.append(('STAR', '*'))\n                tokens.append(('LPAREN', '('))\n                paren_depth += 1\n                want_operand = True\n            else:\n                raise ValueError(f\"Unexpected token {tok_val!r} after operand\")\n\n    if want_operand:\n        raise ValueError(\"Incomplete expression\")\n    if paren_depth != 0:\n        raise ValueError(\"Unclosed parenthesis\")\n\n    # 3. Parsing and evaluation via Pratt parsing\n    pos = 0\n\n    def peek():\n        if pos < len(tokens):\n            return tokens[pos]\n        return ('EOF', None)\n\n    def get():\n        nonlocal pos\n        tok = peek()\n        pos += 1\n        return tok\n\n    def parse_expr(min_prec: int) -> int:\n        tok_type, tok_val = get()\n\n        # Prefix denotation\n        if tok_type == 'NUM':\n            left = tok_val\n        elif tok_type == 'UNARY_MINUS':\n            left = -parse_expr(30)\n        elif tok_type == 'LPAREN':\n            left = parse_expr(0)\n            close_tok = get()\n            if close_tok[0] != 'RPAREN':\n                raise ValueError(\"Expected closing parenthesis\")\n        else:\n            raise ValueError(f\"Unexpected token {tok_type}\")\n\n        # Infix and Postfix denotation\n        while True:\n            next_type = peek()[0]\n\n            if next_type == 'BANG':\n                lbp = 50\n            elif next_type == 'CARET':\n                lbp = 40\n            elif next_type in ('STAR', 'SLASH', 'PERCENT'):\n                lbp = 20\n            elif next_type in ('PLUS', 'MINUS'):\n                lbp = 10\n            else:\n                lbp = 0\n\n            if lbp <= min_prec:\n                break\n\n            op_type = get()[0]\n\n            if op_type == 'BANG':\n                if left < 0:\n                    raise ValueError(\"Factorial of negative number\")\n                try:\n                    left = math.factorial(left)\n                except OverflowError:\n                    raise ValueError(\"Factorial result too large\")\n            elif op_type == 'CARET':\n                right = parse_expr(39)  # Right-associative\n                if right < 0:\n                    raise ValueError(\"Negative exponent\")\n                left = left ** right\n            elif op_type == 'STAR':\n                right = parse_expr(21)\n                left = left * right\n            elif op_type == 'SLASH':\n                right = parse_expr(21)\n                left = _trunc_div(left, right)\n            elif op_type == 'PERCENT':\n                right = parse_expr(21)\n                left = _trunc_mod(left, right)\n            elif op_type == 'PLUS':\n                right = parse_expr(11)\n                left = left + right\n            elif op_type == 'MINUS':\n                right = parse_expr(11)\n                left = left - right\n            else:\n                raise ValueError(f\"Unexpected operator {op_type}\")\n\n        return left\n\n    result = parse_expr(0)\n    if pos != len(tokens):\n        raise ValueError(\"Unparsed tokens remaining\")\n    return result\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

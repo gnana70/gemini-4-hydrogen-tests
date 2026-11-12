@@ -1,0 +1,22 @@
+{
+ "test": "speed",
+ "model_key": "hydrogen",
+ "model": "gemini-4-hydrogen",
+ "run": 2,
+ "level": "low",
+ "started_utc": "2026-11-12T17:46:48Z",
+ "ttft_s": 8.779,
+ "total_s": 11.251,
+ "gen_s": 2.472,
+ "output_tokens": 672,
+ "thought_tokens": 1557,
+ "tokens_in": 76,
+ "chunks": 25,
+ "words": 572,
+ "tps": 271.8,
+ "tps_end_to_end": 59.7,
+ "cost_usd": 0.016831,
+ "ok": true,
+ "score": 1.0,
+ "note": "tps = answer tokens / (last chunk - first answer chunk), measured from this machine; few chunks make it less exact"
+}

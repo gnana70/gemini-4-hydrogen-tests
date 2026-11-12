@@ -1,0 +1,45 @@
+{
+ "test": "code",
+ "model_key": "argon",
+ "model": "gemini-4-argon",
+ "run": 5,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:25:16Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdTOHoxYW8zN0tiUDY2OTRQeFlXOGdRZxIXUzh6MWFvMzdLYlA2Njk0UHhZVzhnUWc",
+ "seconds": 178.9,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:28:15Z",
+ "server_updated": "2026-11-12T14:28:15Z",
+ "tokens_in": 439,
+ "thought_tokens": 13440,
+ "tokens_out_incl_thinking": 14523,
+ "cost_usd": 0.146108,
+ "usage": {
+  "total_tokens": 14962,
+  "total_input_tokens": 439,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 439
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1083,
+  "output_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 1083
+   }
+  ],
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 13440
+ },
+ "text": "```python\nimport math\n\n\ndef evaluate(expr: str) -> int:\n    if not isinstance(expr, str):\n        raise ValueError(\"Expression must be a string\")\n\n    PRECEDENCE = {\n        \"+\": 1,\n        \"-\": 1,\n        \"*\": 2,\n        \"/\": 2,\n        \"%\": 2,\n        \"UMINUS\": 3,\n        \"^\": 4,\n    }\n\n    val_stack: list[int] = []\n    op_stack: list[str] = []\n\n    def apply_op(op: str) -> None:\n        if op == \"UMINUS\":\n            val_stack[-1] = -val_stack[-1]\n            return\n        b = val_stack.pop()\n        a = val_stack[-1]\n        if op == \"+\":\n            val_stack[-1] = a + b\n        elif op == \"-\":\n            val_stack[-1] = a - b\n        elif op == \"*\":\n            val_stack[-1] = a * b\n        elif op == \"/\":\n            if b == 0:\n                raise ValueError(\"Division by zero\")\n            q = abs(a) // abs(b)\n            val_stack[-1] = -q if (a < 0) ^ (b < 0) else q\n        elif op == \"%\":\n            if b == 0:\n                raise ValueError(\"Modulo by zero\")\n            r = abs(a) % abs(b)\n            val_stack[-1] = -r if a < 0 else r\n        elif op == \"^\":\n            if b < 0:\n                raise ValueError(\"Negative exponent\")\n            val_stack[-1] = a**b\n\n    def push_binary_op(op: str) -> None:\n        prec = PRECEDENCE[op]\n        if op == \"^\":\n            while (\n                op_stack and op_stack[-1] != \"(\" and PRECEDENCE[op_stack[-1]] > prec\n            ):\n                apply_op(op_stack.pop())\n        else:\n            while (\n                op_stack\n                and op_stack[-1] != \"(\"\n                and PRECEDENCE[op_stack[-1]] >= prec\n            ):\n                apply_op(op_stack.pop())\n        op_stack.append(op)\n\n    expect_operand = True\n    i = 0\n    n = len(expr)\n\n    while i < n:\n        ch = expr[i]\n        if ch.isspace():\n            i += 1\n            continue\n\n        if \"0\" <= ch <= \"9\":\n            if not expect_operand:\n                raise ValueError(\"Unexpected number\")\n            j = i + 1\n            while j < n and \"0\" <= expr[j] <= \"9\":\n                j += 1\n            val_stack.append(int(expr[i:j]))\n            i = j\n            expect_operand = False\n        elif ch == \"(\":\n            if not expect_operand:\n                push_binary_op(\"*\")\n            op_stack.append(\"(\")\n            i += 1\n            expect_operand = True\n        elif ch == \")\":\n            if expect_operand:\n                raise ValueError(\"Unexpected ')'\")\n            while op_stack and op_stack[-1] != \"(\":\n                apply_op(op_stack.pop())\n            if not op_stack:\n                raise ValueError(\"Mismatched ')'\")\n            op_stack.pop()\n            i += 1\n            expect_operand = False\n        elif ch == \"!\":\n            if expect_operand:\n                raise ValueError(\"Unexpected '!'\")\n            if val_stack[-1] < 0:\n                raise ValueError(\"Factorial of negative number\")\n            val_stack[-1] = math.factorial(val_stack[-1])\n            i += 1\n        elif ch in \"+-*/%^\":\n            if expect_operand:\n                if ch == \"-\":\n                    op_stack.append(\"UMINUS\")\n                else:\n                    raise ValueError(f\"Unexpected operator '{ch}'\")\n            else:\n                push_binary_op(ch)\n                expect_operand = True\n            i += 1\n        else:\n            raise ValueError(f\"Invalid character '{ch}'\")\n\n    if expect_operand:\n        raise ValueError(\"Unexpected end of expression\")\n\n    while op_stack:\n        op = op_stack.pop()\n        if op == \"(\":\n            raise ValueError(\"Mismatched '('\")\n        apply_op(op)\n\n    if len(val_stack) != 1:\n        raise ValueError(\"Malformed expression\")\n\n    return val_stack[0]\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

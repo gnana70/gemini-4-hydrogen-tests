@@ -1,0 +1,39 @@
+{
+ "_note": "One place for model ids and prices (USD per 1M tokens, standard paid tier; thinking tokens bill as output). Set hydrogen.id the moment Google lists it: `python hydrogen_tests.py watch` does that for you.",
+ "hydrogen": {
+  "id": "gemini-4-hydrogen",
+  "name": "Gemini 4 Hydrogen",
+  "price_in": 1.5,
+  "price_out": 7.5,
+  "price_status": "Google Gemini API pricing page, read 12 Nov 2026: standard $1.50 in / $7.50 out per 1M tokens (output includes thinking), caching $0.075, batch and flex $0.75 / $3.75. Free tier available.",
+  "all_ids_seen": [
+   "gemini-4-hydrogen"
+  ]
+ },
+ "helix": {
+  "id": null,
+  "candidates": [
+   "gemini-4-helix",
+   "gemini-4-helix-preview",
+   "gemini-4-flash-lite"
+  ],
+  "name": "Gemini 4 Helix",
+  "price_in": null,
+  "price_out": null,
+  "price_status": "UNKNOWN. Helix (reported as the Flash-Lite tier) comes from one X post of 'surfaced model identifiers' (StatsWire, 11 Nov 2026). Optional: it joins the tests and the video only if it ships and you set its price here."
+ },
+ "flash38": {
+  "id": "gemini-3.8-flash",
+  "name": "Gemini 3.8 Flash",
+  "price_in": 0.75,
+  "price_out": 3.75,
+  "price_status": "Google pricing page: $0.75 / $3.75 through 31 Dec 2026, $1.50 / $7.50 from 1 Jan 2027"
+ },
+ "argon": {
+  "id": "gemini-4-argon",
+  "name": "Gemini 4 Argon",
+  "price_in": 2.0,
+  "price_out": 10.0,
+  "price_status": "Google: $2 / $10 through 30 Nov 2026, $4 / $20 from 1 Dec 2026"
+ }
+}

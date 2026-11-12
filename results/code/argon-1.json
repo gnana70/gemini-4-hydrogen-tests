@@ -1,0 +1,45 @@
+{
+ "test": "code",
+ "model_key": "argon",
+ "model": "gemini-4-argon",
+ "run": 1,
+ "level": "high",
+ "submitted_utc": "2026-11-12T14:25:02Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdQY3oxYXFQNUx2TGs0dDRQcUtLS3lBNBIXUGN6MWFxUDVMdkxrNHQ0UHFLS0t5QTQ",
+ "seconds": 101.7,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:26:44Z",
+ "server_updated": "2026-11-12T14:26:44Z",
+ "tokens_in": 439,
+ "thought_tokens": 6948,
+ "tokens_out_incl_thinking": 8040,
+ "cost_usd": 0.081278,
+ "usage": {
+  "total_tokens": 8479,
+  "total_input_tokens": 439,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 439
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1092,
+  "output_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 1092
+   }
+  ],
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 6948
+ },
+ "text": "```python\nimport math\n\n\ndef evaluate(expr: str) -> int:\n    # Tokenize the input string\n    tokens = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        ch = expr[i]\n        if ch.isspace():\n            i += 1\n        elif \"0\" <= ch <= \"9\":\n            j = i + 1\n            while j < n and \"0\" <= expr[j] <= \"9\":\n                j += 1\n            tokens.append(int(expr[i:j]))\n            i = j\n        elif ch in \"+-*/%^!()\":\n            tokens.append(ch)\n            i += 1\n        else:\n            raise ValueError(f\"Invalid character: {ch!r}\")\n\n    if not tokens:\n        raise ValueError(\"Empty expression\")\n\n    # Precedence and associativity (True = right-associative)\n    # '+' and '-': 1, '*', '/', '%': 2, unary '-': 3, '^': 4\n    PREC = {\n        \"+\": (1, False),\n        \"-\": (1, False),\n        \"*\": (2, False),\n        \"/\": (2, False),\n        \"%\": (2, False),\n        \"u-\": (3, True),\n        \"^\": (4, True),\n    }\n\n    values = []\n    ops = []\n\n    def apply_op(op: str) -> None:\n        if op == \"u-\":\n            if not values:\n                raise ValueError(\"Malformed expression\")\n            values[-1] = -values[-1]\n            return\n\n        if len(values) < 2:\n            raise ValueError(\"Malformed expression\")\n        b = values.pop()\n        a = values.pop()\n\n        if op == \"+\":\n            values.append(a + b)\n        elif op == \"-\":\n            values.append(a - b)\n        elif op == \"*\":\n            values.append(a * b)\n        elif op == \"/\":\n            if b == 0:\n                raise ValueError(\"Division by zero\")\n            q = abs(a) // abs(b)\n            values.append(-q if (a < 0) ^ (b < 0) else q)\n        elif op == \"%\":\n            if b == 0:\n                raise ValueError(\"Modulo by zero\")\n            r = abs(a) % abs(b)\n            values.append(-r if a < 0 else r)\n        elif op == \"^\":\n            if b < 0:\n                raise ValueError(\"Negative exponent\")\n            values.append(a**b)\n\n    def push_binary_op(op: str) -> None:\n        prec, right_assoc = PREC[op]\n        while ops and ops[-1] != \"(\":\n            top_prec, _ = PREC[ops[-1]]\n            if top_prec > prec or (top_prec == prec and not right_assoc):\n                apply_op(ops.pop())\n            else:\n                break\n        ops.append(op)\n\n    expect_operand = True\n\n    for tok in tokens:\n        if expect_operand:\n            if isinstance(tok, int):\n                values.append(tok)\n                expect_operand = False\n            elif tok == \"(\":\n                ops.append(\"(\")\n            elif tok == \"-\":\n                ops.append(\"u-\")\n            else:\n                raise ValueError(f\"Unexpected token: {tok!r}\")\n        else:\n            if tok == \"!\":\n                if not values or values[-1] < 0:\n                    raise ValueError(\"Invalid factorial operand\")\n                values[-1] = math.factorial(values[-1])\n            elif tok == \"(\":\n                # Implicit multiplication after a number, ')' or '!'\n                push_binary_op(\"*\")\n                ops.append(\"(\")\n                expect_operand = True\n            elif tok == \")\":\n                while ops and ops[-1] != \"(\":\n                    apply_op(ops.pop())\n                if not ops or ops[-1] != \"(\":\n                    raise ValueError(\"Mismatched parentheses\")\n                ops.pop()\n            elif isinstance(tok, str) and tok in \"+-*/%^\":\n                push_binary_op(tok)\n                expect_operand = True\n            else:\n                raise ValueError(f\"Unexpected token: {tok!r}\")\n\n    if expect_operand:\n        raise ValueError(\"Incomplete expression\")\n\n    while ops:\n        op = ops.pop()\n        if op == \"(\":\n            raise ValueError(\"Mismatched parentheses\")\n        apply_op(op)\n\n    if len(values) != 1:\n        raise ValueError(\"Malformed expression\")\n\n    return values[0]\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

@@ -1,0 +1,22 @@
+{
+ "test": "speed",
+ "model_key": "flash38",
+ "model": "gemini-3.8-flash",
+ "run": 3,
+ "level": "low",
+ "started_utc": "2026-11-12T14:26:37Z",
+ "ttft_s": 2.739,
+ "total_s": 8.341,
+ "gen_s": 5.601,
+ "output_tokens": 583,
+ "thought_tokens": 0,
+ "tokens_in": 47,
+ "chunks": 24,
+ "words": 500,
+ "tps": 104.1,
+ "tps_end_to_end": 69.9,
+ "cost_usd": 0.002221,
+ "ok": true,
+ "score": 1.0,
+ "note": "tps = answer tokens / (last chunk - first answer chunk), measured from this machine; few chunks make it less exact"
+}

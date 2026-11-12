@@ -1,0 +1,45 @@
+{
+ "test": "code",
+ "model_key": "hydrogen",
+ "model": "gemini-4-hydrogen",
+ "run": 3,
+ "level": "high",
+ "submitted_utc": "2026-11-12T17:46:03Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdXX3YxYXN2UUU2LWY0LUVQLWZ5MWtRSRIXV192MWFzdlFFNi1mNC1FUC1meTFrUUk",
+ "seconds": 47.2,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T17:46:51Z",
+ "server_updated": "2026-11-12T17:46:51Z",
+ "tokens_in": 439,
+ "thought_tokens": 9779,
+ "tokens_out_incl_thinking": 10654,
+ "cost_usd": 0.080564,
+ "usage": {
+  "total_tokens": 11093,
+  "total_input_tokens": 439,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 439
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 875,
+  "output_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 875
+   }
+  ],
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 9779
+ },
+ "text": "```python\nimport math\n\n\ndef evaluate(expr: str) -> int:\n    if not isinstance(expr, str):\n        raise ValueError(\"Expression must be a string\")\n\n    tokens = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        ch = expr[i]\n        if ch.isspace():\n            i += 1\n        elif \"0\" <= ch <= \"9\":\n            j = i + 1\n            while j < n and \"0\" <= expr[j] <= \"9\":\n                j += 1\n            tokens.append(int(expr[i:j]))\n            i = j\n        elif ch in \"+-*/%^!()\":\n            tokens.append(ch)\n            i += 1\n        else:\n            raise ValueError(f\"Unexpected character: {ch!r}\")\n\n    if not tokens:\n        raise ValueError(\"Empty expression\")\n\n    pos = 0\n    num_tokens = len(tokens)\n\n    def peek():\n        return tokens[pos] if pos < num_tokens else None\n\n    def advance():\n        nonlocal pos\n        tok = tokens[pos]\n        pos += 1\n        return tok\n\n    def parse_expr() -> int:\n        val = parse_mul_div()\n        while peek() in (\"+\", \"-\"):\n            op = advance()\n            rhs = parse_mul_div()\n            if op == \"+\":\n                val += rhs\n            else:\n                val -= rhs\n        return val\n\n    def parse_mul_div() -> int:\n        val = parse_unary()\n        while True:\n            tok = peek()\n            if tok == \"*\":\n                advance()\n                val *= parse_unary()\n            elif tok == \"/\":\n                advance()\n                rhs = parse_unary()\n                if rhs == 0:\n                    raise ValueError(\"Division by zero\")\n                q = abs(val) // abs(rhs)\n                val = -q if (val < 0) ^ (rhs < 0) else q\n            elif tok == \"%\":\n                advance()\n                rhs = parse_unary()\n                if rhs == 0:\n                    raise ValueError(\"Remainder by zero\")\n                r = abs(val) % abs(rhs)\n                val = -r if val < 0 else r\n            elif tok == \"(\":\n                val *= parse_unary()\n            else:\n                break\n        return val\n\n    def parse_unary() -> int:\n        neg = False\n        while peek() == \"-\":\n            advance()\n            neg = not neg\n        val = parse_power()\n        return -val if neg else val\n\n    def parse_power() -> int:\n        base = parse_postfix()\n        if peek() == \"^\":\n            advance()\n            exp = parse_unary()\n            if exp < 0:\n                raise ValueError(\"Negative exponent\")\n            return pow(base, exp)\n        return base\n\n    def parse_postfix() -> int:\n        val = parse_primary()\n        while peek() == \"!\":\n            advance()\n            if val < 0:\n                raise ValueError(\"Factorial of a negative number\")\n            val = math.factorial(val)\n        return val\n\n    def parse_primary() -> int:\n        tok = peek()\n        if isinstance(tok, int):\n            advance()\n            return tok\n        if tok == \"(\":\n            advance()\n            val = parse_expr()\n            if peek() != \")\":\n                raise ValueError(\"Mismatched parentheses\")\n            advance()\n            return val\n        raise ValueError(f\"Unexpected token: {tok!r}\")\n\n    result = parse_expr()\n    if pos != num_tokens:\n        raise ValueError(f\"Unexpected token: {tokens[pos]!r}\")\n    return result\n```",
+ "ok": true,
+ "score": 1.0,
+ "passed": 60,
+ "of": 60,
+ "detail": "60/60 hidden cases",
+ "failed": []
+}

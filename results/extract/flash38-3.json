@@ -1,0 +1,40 @@
+{
+ "test": "extract",
+ "model_key": "flash38",
+ "model": "gemini-3.8-flash",
+ "run": 3,
+ "level": "low",
+ "submitted_utc": "2026-11-12T14:24:49Z",
+ "status": "completed",
+ "interaction_id": "v1_ChdNY3oxYXMtOUFzREdqdU1QMElMRjhRYxIXTWN6MWFzLTlBc0RHanVNUDBJTEY4UWM",
+ "seconds": 8.5,
+ "timing": "submit -> server \"updated\" stamp (1 s resolution)",
+ "server_created": "2026-11-12T14:24:58Z",
+ "server_updated": "2026-11-12T14:24:58Z",
+ "tokens_in": 1131,
+ "thought_tokens": 0,
+ "tokens_out_incl_thinking": 1339,
+ "cost_usd": 0.005869,
+ "usage": {
+  "total_tokens": 2470,
+  "total_input_tokens": 1131,
+  "input_tokens_by_modality": [
+   {
+    "modality": "text",
+    "tokens": 1131
+   }
+  ],
+  "total_cached_tokens": 0,
+  "total_output_tokens": 1339,
+  "total_tool_use_tokens": 0,
+  "total_thought_tokens": 0,
+  "initial_input_tokens": 1131
+ },
+ "text": "[\n  {\n    \"order_id\": \"WEB-56934\",\n    \"customer\": \"Aiko Tanaka\",\n    \"date\": \"2026-05-02\",\n    \"quantity\": 7,\n    \"amount\": 1561.96,\n    \"currency\": \"USD\",\n    \"status\": \"pending\"\n  },\n  {\n    \"order_id\": \"SO-75305-A\",\n    \"customer\": \"Bruno Ferreira\",\n    \"date\": \"2026-08-01\",\n    \"quantity\": 1,\n    \"amount\": 1635.71,\n    \"currency\": \"EUR\",\n    \"status\": \"shipped\"\n  },\n  {\n    \"order_id\": \"SO-87217-A\",\n    \"customer\": \"Chidi O'Neill\",\n    \"date\": \"2026-11-12\",\n    \"quantity\": 1,\n    \"amount\": 7081,\n    \"currency\": \"JPY\",\n    \"status\": \"refunded\"\n  },\n  {\n    \"order_id\": \"ORD-33282/2\",\n    \"customer\": \"Dana Kowalski\",\n    \"date\": \"2026-06-10\",\n    \"quantity\": 10,\n    \"amount\": 1741.54,\n    \"currency\": \"GBP\",\n    \"status\": \"shipped\"\n  },\n  {\n    \"order_id\": \"WEB-78166\",\n    \"customer\": \"Emre Yilmaz\",\n    \"date\": \"2026-08-11\",\n    \"quantity\": 9,\n    \"amount\": 487.17,\n    \"currency\": \"EUR\",\n    \"status\": \"cancelled\"\n  },\n  {\n    \"order_id\": \"WEB-46776/2\",\n    \"customer\": \"Farah Haddad\",\n    \"date\": \"2026-02-02\",\n    \"quantity\": 10,\n    \"amount\": 1837,\n    \"currency\": \"JPY\",\n    \"status\": \"cancelled\"\n  },\n  {\n    \"order_id\": \"ORD-29599\",\n    \"customer\": \"Goran Petrovic\",\n    \"date\": \"2026-06-05\",\n    \"quantity\": 9,\n    \"amount\": 2354.98,\n    \"currency\": \"GBP\",\n    \"status\": \"refunded\"\n  },\n  {\n    \"order_id\": \"ORD-31923-A\",\n    \"customer\": \"Hana Novak\",\n    \"date\": \"2026-12-08\",\n    \"quantity\": 3,\n    \"amount\": 871.01,\n    \"currency\": \"EUR\",\n    \"status\": \"shipped\"\n  },\n  {\n    \"order_id\": \"SO-17454/2\",\n    \"customer\": \"Ivo van der Berg\",\n    \"date\": \"2026-07-01\",\n    \"quantity\": 11,\n    \"amount\": 2132.22,\n    \"currency\": \"EUR\",\n    \"status\": \"shipped\"\n  },\n  {\n    \"order_id\": \"SO-19945-A\",\n    \"customer\": \"Jun-seo Park\",\n    \"date\": \"2026-02-06\",\n    \"quantity\": 8,\n    \"amount\": 2076.29,\n    \"currency\": \"USD\",\n    \"status\": \"refunded\"\n  },\n  {\n    \"order_id\": \"WEB-81257/2\",\n    \"customer\": \"Kirra Mitchell\",\n    \"date\": \"2026-04-08\",\n    \"quantity\": 2,\n    \"amount\": 576.10,\n    \"currency\": \"GBP\",\n    \"status\": \"refunded\"\n  },\n  {\n    \"order_id\": \"WEB-64323\",\n    \"customer\": \"Lucia Moreno\",\n    \"date\": \"2026-02-07\",\n    \"quantity\": 8,\n    \"amount\": 2371.57,\n    \"currency\": \"EUR\",\n    \"status\": \"cancelled\"\n  },\n  {\n    \"order_id\": \"ORD-83018/2\",\n    \"customer\": \"Mateus Silva-Costa\",\n    \"date\": \"2026-02-12\",\n    \"quantity\": 7,\n    \"amount\": 1440.77,\n    \"currency\": \"EUR\",\n    \"status\": \"pending\"\n  },\n  {\n    \"order_id\": \"SO-31669/2\",\n    \"customer\": \"Noor Rahman\",\n    \"date\": \"2026-01-11\",\n    \"quantity\": 12,\n    \"amount\": 882.13,\n    \"currency\": \"EUR\",\n    \"status\": \"pending\"\n  },\n  {\n    \"order_id\": \"WEB-45667\",\n    \"customer\": \"Oskar Lindqvist\",\n    \"date\": \"2026-09-12\",\n    \"quantity\": 8,\n    \"amount\": 626.74,\n    \"currency\": \"USD\",\n    \"status\": \"pending\"\n  }\n]",
+ "ok": true,
+ "score": 1.0,
+ "right": 105,
+ "of": 105,
+ "detail": "105/105 fields",
+ "wrong_fields": []
+}
